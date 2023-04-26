@@ -1,3 +1,5 @@
+from time import sleep
+from scipy.fft import fft, fftfreq
 from scipy.integrate import quad
 import numpy as np
 from scipy.special import erf
@@ -24,7 +26,7 @@ def psi_linked(x: float) -> float:
 
 def psi_chet(E: float, x: float) -> float:
     k = np.sqrt(2 * m * E) / h_pr
-    return B * (np.cos(k * x) - (kappa / k) * np.sin(k * np.abs(x)))
+    return 1 / np.sqrt(np.pi * (1+(kappa/k)**2)) * (np.cos(k * x) - (kappa / k) * np.sin(k * np.abs(x)))
 
 
 def psi_nechet(E: float, x: float) -> float:
@@ -69,7 +71,7 @@ def c_chet(E: float, by_integral=False) -> float:
         k = np.sqrt(2 * m * E) / h_pr
         arg1 = complex(real=x0, imag=2 * k * np.power(sigma, 2)) / (2 * sigma)
         arg2 = complex(real=x0, imag=-2 * k * np.power(sigma, 2)) / (2 * sigma)
-        res = - B * (np.power(np.pi / 2, 1 / 4) * np.sqrt(sigma) / k) * \
+        res = - 1 / np.sqrt(np.pi * (1+(kappa/k)**2)) * (np.power(np.pi / 2, 1 / 4) * np.sqrt(sigma) / k) * \
               np.exp(-np.power(k * sigma, 2)) * (kappa * complex(real=np.sin(k * x0), imag=-np.cos(k * x0)) *
                                                  erf(arg1) + kappa * complex(real=np.sin(k * x0), imag=np.cos(k * x0)) *
                                                  erf(arg2) - 2 * k * np.cos(k * x0))
@@ -100,20 +102,86 @@ def psi(x: float, t: float) -> complex:
         return c_chet(E) * psi_chet(E, x) * np.exp(complex(real=0, imag=-E * t / h_pr))
 
     s2 = complex_quad(nechet_intergal, 0, inf)
-#    s3 = complex_quad(chet_intergal, 0.00001, inf)
-    return s1 + s2 #+ s3
+    s3 = complex_quad(chet_intergal, 0.00001, 100)
+    return s1 + s2 + s3
 
 
-x = np.linspace(0, 10, dtype=float)
-t = np.linspace(-10, 10, dtype=float)
+# def graph_psi():
+#     N = 100
+#     x = np.linspace(-1.5, 1.5, N)
+#     y = np.zeros(len(x), dtype=complex)
+#     for i in range(len(x)):
+#         y[i] = psi(x[i], 0)
+#     yplot = np.abs(y)
+#     plt.ion()
+#     fig = plt.figure()
+#     line1, = plt.plot(x, yplot, 'b-')
+#     fig.canvas.draw()
+#     fig.canvas.flush_events()
+    # for i in range(10):
+    #     print(i)
+    #     sleep(1)
+
+    # for t in np.linspace(0, 1, 50):
+    #     print(t)
+    #     for i in range(len(x)):
+    #         y[i] = psi(x[i], t)
+    #     yplot = np.abs(y)
+    #     line1.set_ydata(yplot)
+    #     fig.canvas.draw()
+    #     fig.canvas.flush_events()
 
 
-def prob(t):
-    W = np.zeros_like(x, dtype=complex)
-    for i in range(W.shape[0]):
-        W[i] = psi(x[i], 0)
+# graph_psi()
 
-    return (np.abs(np.fft.fft(W))) ** 2
+
+# def graph_fft():
+#     N = 20
+#     x = np.linspace(-1.5, 1.5, N)
+#     y = np.zeros(len(x), dtype=complex)
+#     T = 0.1
+#     for i in range(len(x)):
+#         y[i] = psi(x[i], 0)
+#     plt.ion()
+#     fig = plt.figure()
+#
+#     yf = np.power(np.abs(fft(y)), 2)
+#     xf = fftfreq(N, T)[:N // 2]
+#
+#     line1, = plt.plot(xf, 2.0 / N * yf[0:N // 2], 'r-')
+#
+#     fig.canvas.draw()
+#     fig.canvas.flush_events()
+#     for i in range(10):
+#         print(i)
+#         sleep(1)
+#
+#     for t in np.linspace(0, 1, 50):
+#         if kappa != 0:
+#             print(t)
+#             for i in range(N):
+#              y[i] = psi(x[i], t)
+#             yf = np.power(np.abs(fft(y)), 2)
+#             line1.set_ydata(2.0 / N * yf[0:N // 2])
+#             fig.canvas.draw()
+#             fig.canvas.flush_events()
+#         else:
+#             sleep(0.9)
+#
+#
+# graph_fft()
+
+
+# x = np.linspace(0, 10, dtype=float)
+# t = np.linspace(-10, 10, dtype=float)
+#
+#
+# def prob(t):
+#     W = np.zeros_like(x, dtype=complex)
+#     for i in range(W.shape[0]):
+#         W[i] = psi(x[i], 0)
+#
+#     return (np.abs(np.fft.fft(W))) ** 2
 
 #
 # W = prob(0)
@@ -127,7 +195,5 @@ def prob(t):
 #
 # plt.show()
 
-
-
-
-
+c = c_linked()
+print(c)
