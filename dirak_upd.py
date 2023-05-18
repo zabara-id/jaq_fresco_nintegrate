@@ -3,11 +3,12 @@ from numpy import exp, pi, sqrt
 import matplotlib.pyplot as plt
 from scipy.special import erf
 from numpy.linalg import eig
-from scipy.optimize import fsolve
 from trancendent import trancedent
+import warnings
+from matplotlib import MatplotlibDeprecationWarning
 
 N_int = 1
-sgm = 0.8
+sgm = 1.
 a = 4
 h = 1
 m = 1
@@ -61,7 +62,7 @@ def main():
     res = np.array(res)
     k = np.array(ks)
 
-    energy_level = 1
+    energy_level = 22
 
     analytical_solution = trancedent(k, a, energy_level)
     numerical_solution = np.abs(res[:, energy_level + 1])
@@ -75,14 +76,14 @@ def main():
     podgon = (min_num - max_num) / (min_an - max_an)
     podgon_podgonovich = min_num - min_an * podgon
 
+    warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning)
+
     plt.style.use('seaborn')
 
     plt.plot(k, numerical_solution, label='numerical')
     plt.plot(k, analytical_solution * podgon + podgon_podgonovich, label='analytical')
     plt.title("$E_{}$".format(energy_level))
     plt.legend()
-    # ax = plt.gca()
-    # ax.legend(p, [r'$E_{e1}$'.replace('e1', f'{energy_level}')])
     plt.show()
 
 
