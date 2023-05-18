@@ -4,7 +4,7 @@ from scipy.integrate import quad
 
 # Задание параметров функции и пределов интегрирования
 sigma = 2
-a = 0.1
+a = 0.01
 inf = np.inf
 pi = np.pi
 hbar = 1
@@ -12,7 +12,7 @@ m = 1
 
 # Определение функции
 def integrand(x, a, n, sigma):
-    return np.exp(-x ** 2 / sigma ** 2) * np.exp(-2 * np.pi * 1j * n * x / a)
+    return np.exp(-x ** 2 / sigma ** 2) * np.exp(-2 * np.pi * 1j * n * x / a) / a
 
 
 # Заполняем матрицу V
@@ -20,8 +20,8 @@ def v_matrix(n: int) -> np.ndarray:
     V = np.zeros((n, n))
     for i in range(0, n):
         for j in range(0, n - i):
-            V[j, j + i] = quad(integrand, -inf, inf, args=(a, i, sigma))[0]
-            V[j + i, j] = quad(integrand, -inf, inf, args=(a, -i, sigma))[0]
+            V[j, j + i] = quad(integrand, -a/2, a/2, args=(a, i, sigma))[0]
+            V[j + i, j] = quad(integrand, -a/2, a/2, args=(a, -i, sigma))[0]
 
     return V
 
@@ -46,8 +46,8 @@ def energy(n: int, num=100) -> np.ndarray:
         # Вычисляем матрицу V
         for i in range(0, n):
             for j in range(0, n - i):
-                V[j, j + i] = quad(integrand, -1000, 1000, args=(a, i, sigma))[0]
-                V[j + i, j] = quad(integrand, -1000, 1000, args=(a, -i, sigma))[0]
+                V[j, j + i] = quad(integrand, -a/2, a/2, args=(a, i, sigma))[0]
+                V[j + i, j] = quad(integrand, -a/2, a/2, args=(a, -i, sigma))[0]
         # Вычисляем матрицу A для конкретного k
         for i in range(0, n):
             A[i, i] = hbar ** 2 / (2*m) * (2 * pi * i / a) ** 2 + hbar ** 2 * k ** 2 / m * (2 * pi * i / a) + hbar**2 * k**2 / (2*m)
@@ -66,24 +66,24 @@ def energy(n: int, num=100) -> np.ndarray:
 
 
 # определение матрицы E
-# E = energy(5)
+E = energy(5)
 # создание оси x
-# x = np.linspace(-np.pi/a, np.pi/a, 100)
-#
-# # построение линий для каждой строчки матрицы E
-# for i in range(E.shape[0]):
-#     y = E[i,:]
-#     plt.plot(x, y)
-#
-# # добавление легенды и заголовка графика
-# plt.legend()
-# plt.title('E_n(k)')
-# plt.grid(True)
-#
-# # показ графика
-# plt.show()
+x = np.linspace(-np.pi/a, np.pi/a, 100)
 
-print(v_matrix(10))
+# построение линий для каждой строчки матрицы E
+for i in range(E.shape[0]):
+    y = E[i,:]
+    plt.legend(str(i))
+    plt.plot(x, y)
+
+# добавление легенды и заголовка графика
+plt.title('E_n(k)')
+plt.grid(True)
+
+# показ графика
+plt.show()
+
+# print(v_matrix(10))
 
 # V = v_matrix(4)
 # A = a_matrix(4)
