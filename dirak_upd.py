@@ -8,7 +8,7 @@ import warnings
 from matplotlib import MatplotlibDeprecationWarning
 
 N_int = 1
-sgm = 1.
+sgm = 0.01
 a = 4
 h = 1
 m = 1
@@ -62,7 +62,7 @@ def main():
     res = np.array(res)
     k = np.array(ks)
 
-    energy_level = 22
+    energy_level = 1
 
     analytical_solution = trancedent(k, a, energy_level)
     numerical_solution = np.abs(res[:, energy_level + 1])
@@ -73,16 +73,24 @@ def main():
     min_an = np.min(analytical_solution)
     max_an = np.max(analytical_solution)
 
-    podgon = (min_num - max_num) / (min_an - max_an)
-    podgon_podgonovich = min_num - min_an * podgon
+    p = (min_num - max_num) / (min_an - max_an)
+    pp = min_num - min_an * p
 
     warnings.filterwarnings("ignore", category=MatplotlibDeprecationWarning)
 
-    plt.style.use('seaborn')
+    plt.style.use('dark_background')
 
-    plt.plot(k, numerical_solution, label='numerical')
-    plt.plot(k, analytical_solution * podgon + podgon_podgonovich, label='analytical')
-    plt.title("$E_{}$".format(energy_level))
+    plt.plot(k, numerical_solution, label='numerical {}'.format(energy_level))
+    plt.plot(k, analytical_solution * p + pp, label='analytical {}'.format(energy_level))
+
+    # plt.plot(k, np.abs(res[:, energy_level + 2]), label='numerical {}'.format(energy_level+1))
+    # plt.plot(k, trancedent(k, a, energy_level+1), label='analytical {}'.format(energy_level+1))
+    #
+    # plt.plot(k, np.abs(res[:, energy_level + 3]), label='numerical {}'.format(energy_level+2))
+    # plt.plot(k, trancedent(k, a, energy_level+2), label='analytical {}'.format(energy_level+2))
+
+    plt.title(f"$E_{energy_level}$")
+    plt.grid(True)
     plt.legend()
     plt.show()
 
